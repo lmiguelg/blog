@@ -7,6 +7,11 @@ use App\Models\Post;
 
 class PostController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth')->except(['index','show']);
+
+    }
     /**
      * Display a listing of the resource.
      *
@@ -25,7 +30,6 @@ class PostController extends Controller
      */
     public function create()
     {
-        error_log('create!!');
         return view('blog.create');
     }
 
@@ -45,7 +49,7 @@ class PostController extends Controller
         $post = new Post();
         $post->title = $request->title;
         $post->content = $request->content;
-        $post->user_id = 1;
+        $post->user_id = Auth::user();
         
         if($post->save()){
             return redirect(route('post.index'))->with('success','New post created');
@@ -95,7 +99,7 @@ class PostController extends Controller
         $post = Post::findOrFail($id);
         $post->title = $request->title;
         $post->content = $request->content;
-        $post->user_id = 1;
+        $post->user_id = Auth::user();
         
         if($post->update()){
             return redirect(route('post.show',[$post->id]))->with('success','Post updated');
