@@ -25,6 +25,7 @@ class PostController extends Controller
      */
     public function create()
     {
+        error_log('create!!');
         return view('blog.create');
     }
 
@@ -36,8 +37,8 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
-            'title' => 'required|unique:posts|max:255',
+        $validator = $request->validate([
+            'title' => 'required|max:255',
             'content' => 'required',
         ]);
 
@@ -45,8 +46,10 @@ class PostController extends Controller
         $post->title = $request->title;
         $post->content = $request->content;
         $post->user_id = 1;
-
-        return 123;
+        
+        if($post->save()){
+            return redirect(route('post.index'))->with('success','New post created');
+        }
     }
 
     /**
@@ -57,7 +60,9 @@ class PostController extends Controller
      */
     public function show($id)
     {
-        //
+        $post = Post::findOrFail($id);
+
+        return view('blog.show')->with('post',$post);
     }
 
     /**
@@ -68,7 +73,9 @@ class PostController extends Controller
      */
     public function edit($id)
     {
-        //
+        $post = Post::findOrFail($id);
+
+        return view('blog.edit')->with('post',$post);
     }
 
     /**
@@ -80,7 +87,20 @@ class PostController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $validator = $request->validate([
+            'title' => 'required|max:255',
+            'content' => 'required',
+        ]);
+
+        $post = Post::findOrFail($id);
+        $post->title = $request->title;
+        $post->content = $request->content;
+        $post->user_id = 1;
+        
+        if($post->update()){
+            return redirect(route('post.show',[$post->id]))->with('success','Post updated');
+        }
+        
     }
 
     /**
@@ -91,6 +111,9 @@ class PostController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $post = Post::findOrFail($id);
+        if($post->delete()){
+            return redirect(route('post.index'))->with('success','Post deleted');
+        }
     }
 }
